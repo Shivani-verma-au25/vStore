@@ -6,9 +6,10 @@ import cors from 'cors'
 
 const app = express()
 
-// app.use(cors({
-//     origin:process.env.CORS_URL 
-// }))
+app.use(cors({
+    origin : process.env.CORS_URL,
+      credentials: true 
+}))
 
 app.use(express.json())
 app.use(express.urlencoded({extended : true}))

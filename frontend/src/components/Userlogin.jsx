@@ -4,9 +4,32 @@ import { Button } from './ui/button'
 import { Label } from './ui/label'
 import { Input } from './ui/input'
 import { User } from 'lucide-react'
+import { AxiosInstance } from '@/utils/axios'
 
 function Userlogin() {
      const [mode, setMode] = useState("login"); // 'login' | 'signup' | 'forgot'
+     const [formData ,setFormData] = useState({
+      name : '',
+      email : '',
+      password :'',
+      phone : ''
+     });
+    
+    const register = async () =>{
+      try {
+        const res = await AxiosInstance.post('/v1/user/register',formData)
+        if (res.data.success) {
+          // store and navigate
+        }
+        console.log("res" ,res.data);
+        
+      } catch (error) {
+        console.log("error in regiter");
+
+        
+      }
+    }
+
   return (
     <Dialog>
           <DialogTrigger asChild>
@@ -33,17 +56,28 @@ function Userlogin() {
               </DialogDescription>
             </DialogHeader>
 
-            <form className="space-y-4">
+            <form onSubmit={register} className="space-y-4">
               {mode === "signup" && (
                 <div>
                   <Label className='py-2' htmlFor="name">Name</Label>
-                  <Input id="name" type="text" placeholder="Your name" required />
+                  <Input
+                  onChange={(e) => setFormData({...formData , name : e.target.value})}
+                   id="name" type="text" placeholder="Your name" required   />
                 </div>
               )}
 
               <div>
                 <Label className='py-2' htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="Your email" required />
+                <Input
+                onChange={(e) => setFormData({...formData , email: e.target.value})}
+                 id="email" type="email" placeholder="Your email" required />
+              </div>
+
+              <div>
+                <Label className='py-2' htmlFor="email">Phone</Label>
+                <Input
+                onChange={(e) => setFormData({...formData , phone : e.target.value})}
+                 id="phone" type="phone" placeholder="Your Phone " required />
               </div>
 
               {(mode === "login" || mode === "signup") && (
