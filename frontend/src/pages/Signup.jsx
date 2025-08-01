@@ -1,21 +1,23 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Eye, EyeOff } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Link, useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
-import { AxiosInstance } from '@/utils/axios';
+import React, { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Eye, EyeOff } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { AxiosInstance } from "@/utils/axios";
 
 function Signup() {
   const navigate = useNavigate();
   const [isOpenPass, setIsOpenPass] = useState(false);
+  const [showSecretInput , setShowSecretInput] = useState(false)
   const [formData, setFormData] = useState({
-    firstname: '',
-    phone: '',
-    email: '',
-    password: '',
+    firstname: "",
+    phone: "",
+    email: "",
+    password: "",
+    secretCode: '',
   });
 
   const onChangeInput = (e) => {
@@ -29,25 +31,26 @@ function Signup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const resp = await AxiosInstance.post('/v1/user/register', formData);
+      const resp = await AxiosInstance.post("/v1/user/register", formData);
       if (resp?.data?.success === true) {
         toast.success(resp.data?.message);
-        console.log('res',resp.data);
-        
-        navigate('/login');
+        console.log("res", resp.data);
+
+        navigate("/login");
       }
       setFormData({
-        name: '',
-        phone: '',
-        email: '',
-        password: '',
+        name: "",
+        phone: "",
+        email: "",
+        password: "",
+        secretCode: '',
       });
     } catch (error) {
-      console.error('Error in signup', error.message);
-      toast.error(error.response.data?.message || 'Something went wrong');
+      console.error("Error in signup", error.message);
+      toast.error(error.response.data?.message || "Something went wrong");
     }
   };
-  
+
   return (
     <div className="flex flex-col md:flex-row max-w-6xl mx-auto p-2 md:pt-14 md:min-h-[760px] rounded-xl shadow-xl bg-white dark:bg-gray-900 m-5">
       {/* Left side image */}
@@ -115,7 +118,7 @@ function Signup() {
               <div className="relative">
                 <Label className="py-1">Password</Label>
                 <Input
-                  type={isOpenPass ? 'text' : 'password'}
+                  type={isOpenPass ? "text" : "password"}
                   name="password"
                   placeholder="••••••••"
                   value={formData.password}
@@ -123,6 +126,15 @@ function Signup() {
                   required
                   className="dark:border-gray-600 dark:bg-gray-900"
                 />
+                <Input
+                  type="text"
+                  name="secretCode"
+                  placeholder="Admin Secret Code (Optional)"
+                  value={formData.secretCode}
+                  onChange={onChangeInput}
+                  className="dark:border-gray-600 dark:bg-gray-900 mt-5"
+                />
+
                 <button
                   type="button"
                   onClick={() => setIsOpenPass(!isOpenPass)}
@@ -139,7 +151,7 @@ function Signup() {
 
               {/* Link to login */}
               <p className="text-center text-sm text-gray-500">
-                Already have an account?{' '}
+                Already have an account?{" "}
                 <Link
                   to={"/login"}
                   className="underline font-semibold hover:text-gray-900 dark:hover:text-white"

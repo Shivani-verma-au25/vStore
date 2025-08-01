@@ -4,7 +4,7 @@ import {asyncHandler} from '../utils/asyncHandler.js'
 // user registered 
 export const regiterUser = asyncHandler( async (req , res) => {
     try {
-        const {name ,email ,password,phone} = req.body;
+        const {name ,email ,password,phone,secretCode } = req.body;
         
         //check if all fileds are provided
         if([name ,email ,password].some((field) => field.trim() === '' )){
@@ -31,13 +31,16 @@ export const regiterUser = asyncHandler( async (req , res) => {
             })
         }
 
+        // register as a role
+        const role = secretCode === process.env.ADMIN_SECRET_CODE ? 'admin' : 'user';
+
         //create user
         const user = await User.create({
             name,
             email,
             password,
             phone,
-            role : "user"
+            role 
         })
 
         // check user created or not
@@ -51,7 +54,7 @@ export const regiterUser = asyncHandler( async (req , res) => {
         // send response with created user
         return res.status(200).json({
             success :true,
-            message :"User registered Successfully!",
+            message :`${role} registered successfully`,
             createdUser
         })
 
@@ -140,6 +143,88 @@ export const logoutUser = asyncHandler( async (req, res) => {
         return res.status(500).json({
             success :false,
             message :"Failed to logout"
+        })
+        
+    }
+})
+
+
+// get users profile
+
+export const getProfile = asyncHandler( async (req, res) =>{
+    try {
+        const {_id} = req.user;
+        
+        const user = await User.findOne(_id).select('-password');
+        if (!user) {
+            return res.status(301).json({
+                success : false,
+                message : 'User not found !'
+            })
+        }
+
+        return res.status(200).json({
+            success : true,
+            message : "User profile found ",
+            user
+        })
+
+    } catch (error) {
+        console.log("Error in getting profile" ,error);
+        return res.status(500).json({
+            success : false ,
+            message : "Error to get Profile"
+        })
+        
+    }
+} )
+
+// update profile
+
+export const updateUserProfile = asyncHandler( async (req, res) => {
+    try {
+        const userid = req.user._id;
+        const {name,phone } = req.body;
+
+        if ([name,phone].some((field) => field.trim()=== '')) {
+            return res.status(400).json({
+                success : true,
+                message : "All fields are rquired !"
+            })   
+        }
+
+        const user = await User.findById(userid).select('-password')
+        console.log("user",user);
+        if (!user) {
+            return res.status(300).json({
+                success:  false,
+                message:"User not Found"
+            })
+        }
+
+        user.name = name ?? user.name,
+        user.phone = phone ??  user.phone
+
+        const updateUser = await user.save();
+
+        return res.status(200).json({
+            success : true,
+            message : 'Profile updated',
+            updateUser
+        })
+        
+    
+        
+
+
+
+
+
+    } catch (error) {
+        console.log("error in update user's profile",error);
+        return res.status(400).json({
+            success: false ,
+            message :"Failed to update profile!"
         })
         
     }

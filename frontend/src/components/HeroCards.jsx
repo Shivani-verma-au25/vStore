@@ -2,13 +2,19 @@ import React from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "./ui/button";
 import { Heart } from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
 
-function HeroCards() {
+function HeroCards({item , key}) {
+  const navigate = useNavigate()
+  
   return (
-    <div className="p-2 flex justify-center">
+    <div key={key} className="p-2 flex justify-center">
       <Card className="w-full max-w-[300px] sm:max-w-[280px] md:max-w-[300px] lg:max-w-[360px] xl:max-w-[320px] p-4 rounded-xl shadow-sm bg-white">
         {/* Image */}
-        <div className="flex justify-center items-center overflow-hidden mb-4">
+        <div 
+        onClick={()=>navigate(`/shop/product/detail`)}
+        // onClick={()=>navigate(`product/detail/${item.id}`)}
+        className="flex justify-center items-center overflow-hidden mb-4">
           <img
             className="w-52 h-52 object-cover hover:scale-105 transition-transform duration-300 cursor-pointer"
             src="https://plus.unsplash.com/premium_photo-1675186049419-d48f4b28fe7c?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8Y2xvdGhlc3xlbnwwfHwwfHx8MA%3D%3D"
@@ -36,7 +42,9 @@ function HeroCards() {
               <Button variant="ghost" size="sm" className="text-sm">
                 Cart
               </Button>
-              <Heart className="size-5 cursor-pointer hover:text-red-500 transition-colors duration-200" />
+              <Heart 
+              onClick={() => navigate('/wishlist')}
+              className="size-5 cursor-pointer hover:text-red-500 transition-colors duration-200" />
             </div>
           </div>
         </div>

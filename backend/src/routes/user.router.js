@@ -1,5 +1,5 @@
 import {Router} from 'express'
-import { loginUser, logoutUser, regiterUser } from '../controllers/user.controller.js';
+import { getProfile, loginUser, logoutUser, regiterUser } from '../controllers/user.controller.js';
 import { ProtectedRoute } from '../middlewares/user.midlleware.js';
 
 
@@ -13,6 +13,7 @@ router.route('/logout').post(logoutUser)
 
 // check user in login or not 
 // protected routes
+router.route('/get-profile').get( ProtectedRoute , getProfile)
 router.route('/check').get( ProtectedRoute ,(req ,res) => {
    try {
         res.status(200).json({
@@ -28,5 +29,9 @@ router.route('/check').get( ProtectedRoute ,(req ,res) => {
     })
    }
 })
+
+
+// admin protected routes
+
 
 export default router;

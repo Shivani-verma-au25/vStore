@@ -49,7 +49,7 @@ function Hero() {
       {/* <div className="bg-red-700 py-10"> */}
       <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:px-4 py-10 mb-10">
         {no.map((item, index) => (
-          <HeroCards key={index} />
+          <HeroCards key={index} item={item}/>
         ))}
       </div>
       {/* </div> */}
