@@ -1,8 +1,13 @@
 import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -11,13 +16,13 @@ import { AxiosInstance } from "@/utils/axios";
 function Signup() {
   const navigate = useNavigate();
   const [isOpenPass, setIsOpenPass] = useState(false);
-  const [showSecretInput , setShowSecretInput] = useState(false)
+  const [showSecretInput, setShowSecretInput] = useState(false);
   const [formData, setFormData] = useState({
-    firstname: "",
+    name: "",
     phone: "",
     email: "",
     password: "",
-    secretCode: '',
+    secretCode: "",
   });
 
   const onChangeInput = (e) => {
@@ -32,10 +37,8 @@ function Signup() {
     e.preventDefault();
     try {
       const resp = await AxiosInstance.post("/v1/user/register", formData);
-      if (resp?.data?.success === true) {
+      if (resp?.data?.success) {
         toast.success(resp.data?.message);
-        console.log("res", resp.data);
-
         navigate("/login");
       }
       setFormData({
@@ -43,30 +46,30 @@ function Signup() {
         phone: "",
         email: "",
         password: "",
-        secretCode: '',
+        secretCode: "",
       });
     } catch (error) {
       console.error("Error in signup", error.message);
-      toast.error(error.response.data?.message || "Something went wrong");
+      toast.error(error.response?.data?.message || "Something went wrong");
     }
   };
 
   return (
-    <div className="flex flex-col md:flex-row max-w-6xl mx-auto p-2 md:pt-14 md:min-h-[760px] rounded-xl shadow-xl bg-white dark:bg-gray-900 m-5">
-      {/* Left side image */}
-      <div className="hidden md:block flex-1">
+    <div className="flex flex-col-reverse lg:flex-row items-center justify-center min-h-screen px-4 py-10 bg-gray-50 dark:bg-gray-900">
+      {/* Left Image */}
+      <div className="w-full lg:w-1/2 hidden lg:flex justify-center">
         <img
-          className="rounded-xl w-full h-full object-cover object-top"
-          src="https://plus.unsplash.com/premium_photo-1673125510222-1a51e3a8ccb0?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTd8fGNsb3RoaW5nfGVufDB8fDB8fHww"
+          className="w-[90%] max-h-[600px] rounded-xl object-cover object-top shadow-lg"
+          src="https://plus.unsplash.com/premium_photo-1673125510222-1a51e3a8ccb0?w=600&auto=format&fit=crop&q=60"
           alt="Sign up visual"
         />
       </div>
 
-      {/* Form section */}
-      <div className="flex justify-center items-center flex-1 px-4">
-        <Card className="w-full max-w-mdp-6 shadow-lg rounded-2xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800">
+      {/* Right Form Section */}
+      <div className="w-full max-w-md bg-white dark:bg-gray-800 shadow-xl rounded-xl p-6">
+        <Card className="bg-transparent border-none shadow-none">
           <CardHeader>
-            <CardTitle className="text-center text-xl font-semibold">
+            <CardTitle className="text-2xl font-bold text-center mb-2 text-gray-900 dark:text-white">
               Create an Account
             </CardTitle>
           </CardHeader>
@@ -74,87 +77,108 @@ function Signup() {
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Name */}
               <div>
-                <Label className="py-1">Full Name</Label>
+                <Label className='py-2' htmlFor="name">Full Name</Label>
                 <Input
-                  type="text"
+                  id="name"
                   name="name"
                   placeholder="John Doe"
                   value={formData.name}
                   onChange={onChangeInput}
                   required
-                  className="dark:border-gray-600 dark:bg-gray-900"
                 />
               </div>
 
               {/* Email */}
               <div>
-                <Label className="py-1">Email</Label>
+                <Label className='py-2' htmlFor="email">Email</Label>
                 <Input
-                  type="email"
+                  id="email"
                   name="email"
+                  type="email"
                   placeholder="example@email.com"
                   value={formData.email}
                   onChange={onChangeInput}
                   required
-                  className="dark:border-gray-600 dark:bg-gray-900"
                 />
               </div>
 
               {/* Phone */}
               <div>
-                <Label className="py-1">Phone</Label>
+                <Label className='py-2' htmlFor="phone">Phone</Label>
                 <Input
-                  type="tel"
+                  id="phone"
                   name="phone"
+                  type="tel"
                   placeholder="+91 9876543210"
                   value={formData.phone}
                   onChange={onChangeInput}
                   required
-                  className="dark:border-gray-600 dark:bg-gray-900"
                 />
               </div>
 
               {/* Password */}
               <div className="relative">
-                <Label className="py-1">Password</Label>
+                <Label className='py-2' htmlFor="password">Password</Label>
                 <Input
-                  type={isOpenPass ? "text" : "password"}
+                  id="password"
                   name="password"
+                  type={isOpenPass ? "text" : "password"}
                   placeholder="••••••••"
                   value={formData.password}
                   onChange={onChangeInput}
                   required
-                  className="dark:border-gray-600 dark:bg-gray-900"
                 />
-                <Input
-                  type="text"
-                  name="secretCode"
-                  placeholder="Admin Secret Code (Optional)"
-                  value={formData.secretCode}
-                  onChange={onChangeInput}
-                  className="dark:border-gray-600 dark:bg-gray-900 mt-5"
-                />
-
                 <button
                   type="button"
                   onClick={() => setIsOpenPass(!isOpenPass)}
-                  className="absolute right-3 top-9 text-gray-500"
+                  className="absolute right-3 top-9 text-gray-500 dark:text-gray-400"
                 >
                   {isOpenPass ? <Eye size={20} /> : <EyeOff size={20} />}
                 </button>
               </div>
 
+              {/* Optional Secret Code Toggle */}
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setShowSecretInput(!showSecretInput)}
+                  className="text-sm flex items-center gap-1 text-blue-600 hover:underline cursor-pointer"
+                >
+                  <ShieldCheck size={16} />
+                  {showSecretInput
+                    ? "Hide Admin Secret"
+                    : "Registering as Admin?"}
+                </button>
+              </div>
+
+              {/* Secret Code */}
+              {showSecretInput && (
+                <div>
+                  <Label htmlFor="secretCode">Admin Secret Code</Label>
+                  <Input
+                    id="secretCode"
+                    name="secretCode"
+                    placeholder="Enter secret code"
+                    value={formData.secretCode}
+                    onChange={onChangeInput}
+                  />
+                </div>
+              )}
+
               {/* Submit */}
-              <Button type="submit" className="w-full cursor-pointer">
+              <Button
+                type="submit"
+                className="w-full cursor-pointer transition"
+              >
                 Sign Up
               </Button>
 
               {/* Link to login */}
-              <p className="text-center text-sm text-gray-500">
+              <p className="text-center text-sm text-gray-600 dark:text-gray-400">
                 Already have an account?{" "}
                 <Link
-                  to={"/login"}
-                  className="underline font-semibold hover:text-gray-900 dark:hover:text-white"
+                  to="/login"
+                  className="text-blue-600 hover:underline font-medium"
                 >
                   Sign In
                 </Link>

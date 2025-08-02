@@ -12,10 +12,9 @@ import { setLoading, setUser } from "@/store/authSlice";
 
 function Login() {
   const { loading, users } = useSelector((state) => state.auth);
-  console.log("loading", loading, users);
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const [isOpenPass, setIsOpenPass] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -24,10 +23,7 @@ function Login() {
 
   const onChangeInput = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -39,22 +35,12 @@ function Login() {
       if (resp?.data?.success === true) {
         toast.success(resp.data?.message);
         dispatch(setUser(resp.data?.user));
-
-        if (resp?.data?.user?.role === "admin") {
-          navigate("/dashboard/admin");
-        } else {
-          navigate("/");
-        }
+        navigate(resp.data?.user?.role === "admin" ? "/dashboard/admin" : "/");
       }
-      setFormData({
-        email: "",
-        password: "",
-      });
+
+      setFormData({ email: "", password: "" });
     } catch (error) {
-      console.error(
-        "Error in login:",
-        error.response?.data?.message || error.message
-      );
+      console.error("Error in login:", error.response?.data?.message || error.message);
       toast.error(error.response?.data?.message || "Login failed");
     } finally {
       dispatch(setLoading(false));
@@ -62,58 +48,61 @@ function Login() {
   };
 
   return (
-    <div className="flex flex-col md:flex-row max-w-6xl shadow-2xl m-4 p-10 rounded-xl mx-auto md:pt-14 min-h-screen">
+    <div className="flex flex-col md:flex-row max-w-6xl mx-auto p-6 md:p-10 rounded-2xl shadow-2xl min-h-screen items-center bg-white dark:bg-gray-900 transition-colors duration-300">
+      
       {/* Left Image */}
-      <div className="hidden md:block flex-1">
+      <div className="hidden md:block w-1/2">
         <img
-          className="w-full h-full object-cover object-top rounded-xl"
           src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=720&auto=format&fit=crop"
           alt="Fashion"
+          className="w-full h-full object-cover rounded-xl shadow-md"
         />
       </div>
 
       {/* Right Form */}
-      <div className="flex justify-center items-center flex-1 px-4 md:px-0">
-        <Card className="w-full max-w-md p-6 shadow-lg rounded-2xl bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600">
+      <div className="w-full md:w-1/2 px-4 sm:px-8 md:px-12">
+        <Card className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 shadow-md rounded-xl w-full">
           <CardHeader>
             <CardTitle>
-              <h1 className="text-center text-xl font-semibold">
-                Login to Account
-              </h1>
+              <h1 className="text-center text-2xl font-bold text-gray-800 dark:text-white">Login to Your Account</h1>
             </CardTitle>
           </CardHeader>
+
           <CardContent>
-            <form className="space-y-4" onSubmit={handleSubmit}>
+            <form className="space-y-5" onSubmit={handleSubmit}>
               {/* Email */}
               <div>
-                <Label className="py-2">Email</Label>
+                <Label htmlFor="email" className="block mb-1 text-gray-700 dark:text-white/80">Email</Label>
                 <Input
                   type="email"
-                  placeholder="you@example.com"
+                  id="email"
                   name="email"
-                  onChange={onChangeInput}
                   value={formData.email}
-                  className="dark:border-gray-600 dark:bg-gray-900"
+                  onChange={onChangeInput}
+                  placeholder="you@example.com"
                   required
+                  className="w-full bg-gray-50 dark:bg-gray-900 dark:border-gray-700"
                 />
               </div>
 
               {/* Password */}
               <div className="relative">
-                <Label className="py-2">Password</Label>
+                <Label htmlFor="password" className="block mb-1 text-gray-700 dark:text-white/80">Password</Label>
                 <Input
                   type={isOpenPass ? "text" : "password"}
-                  placeholder="••••••••"
+                  id="password"
                   name="password"
-                  onChange={onChangeInput}
                   value={formData.password}
-                  className="dark:border-gray-600 dark:bg-gray-900"
+                  onChange={onChangeInput}
+                  placeholder="••••••••"
                   required
+                  className="w-full pr-10 bg-gray-50 dark:bg-gray-900 dark:border-gray-700"
                 />
                 <button
                   type="button"
                   onClick={() => setIsOpenPass(!isOpenPass)}
-                  className="absolute right-3 top-9 text-gray-500"
+                  className="absolute right-3 top-9 text-gray-500 dark:text-white/50"
+                  aria-label="Toggle Password Visibility"
                 >
                   {isOpenPass ? <Eye size={20} /> : <EyeOff size={20} />}
                 </button>
@@ -123,24 +112,24 @@ function Login() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full cursor-pointer"
+                className="w-full cursor-pointer text-white font-semibold"
               >
                 {loading ? (
-                  <span className="flex  justify-center items-center gap-2">
-                    <Loader2 className="size-5 transition-all animate-spin duration-150" />
-                    Loading...
+                  <span className="flex justify-center items-center gap-2">
+                    <Loader2 className="animate-spin w-5 h-5" />
+                    Signing In...
                   </span>
                 ) : (
                   "Sign In"
                 )}
               </Button>
 
-              {/* Link to login */}
-              <p className="text-center text-sm text-gray-500">
-                Already have an account?{" "}
+              {/* Sign Up Link */}
+              <p className="text-center text-sm text-gray-500 dark:text-gray-400">
+                Don’t have an account?{" "}
                 <Link
                   to="/signup"
-                  className="underline font-semibold hover:text-gray-900 dark:hover:text-white"
+                  className="font-medium text-blue-600 hover:underline dark:hover:text-white"
                 >
                   Sign Up
                 </Link>

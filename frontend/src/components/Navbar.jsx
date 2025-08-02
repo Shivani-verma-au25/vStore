@@ -1,4 +1,4 @@
-import { Heart, Menu, ShoppingCart } from "lucide-react";
+import { Heart, Menu, ShoppingCart, Loader } from "lucide-react";
 import React from "react";
 import {
   DropdownMenu,
@@ -6,8 +6,8 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -17,21 +17,10 @@ import { toast } from "sonner";
 import { AxiosInstance } from "@/utils/axios";
 import { useDispatch, useSelector } from "react-redux";
 import { logout, setLoading } from "@/store/authSlice";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  DropdownMenuPortal,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-} from "@radix-ui/react-dropdown-menu";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 function Navbar() {
-  const { users, loading } = useSelector((stste) => stste.auth);
+  const { users, loading } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -39,11 +28,11 @@ function Navbar() {
     try {
       dispatch(setLoading(true));
       const res = await AxiosInstance.post("/v1/user/logout");
-      navigate("/login");
       dispatch(logout());
       toast.success(res?.data?.message || "Logged out successfully");
+      navigate("/login");
     } catch (error) {
-      console.log("Error in logout", error);
+      console.error("Error in logout", error);
       toast.error(error?.response?.data?.message || "Logout failed");
     } finally {
       dispatch(setLoading(false));
@@ -53,146 +42,147 @@ function Navbar() {
   if (loading)
     return (
       <div className="w-screen h-screen flex justify-center items-center">
-        <Loader className="size-20 animate-spin transition-all duration-150" />
-        <span className="text-2xl font-semibold">Loading...</span>
+        <Loader className="w-12 h-12 animate-spin text-green-600" />
+        <span className="ml-3 text-xl font-semibold">Loading...</span>
       </div>
     );
 
   return (
-    <nav className="w-full max-w-7xl mx-auto py-5 lg:px-10 px-5 flex justify-between items-center  bg-white">
+    <nav className="w-full max-w-7xl mx-auto py-4 px-4 lg:px-8 flex justify-between items-center border-b dark:border-gray-700 bg-white dark:bg-gray-900">
       {/* Logo */}
-      <div className="flex items-center gap-2">
+      <Link to="/" className="flex items-center gap-2">
         <img
-          className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-red-800 object-cover"
           src="https://t4.ftcdn.net/jpg/04/06/91/91/360_F_406919161_J0pGxe1sewqnk5dnvyRS77MKmEd6SVac.jpg"
-          alt="Store Logo"
+          alt="Logo"
+          className="w-10 h-10 rounded-full object-cover"
         />
-        <p className="text-2xl font-bold tracking-wide uppercase">Store</p>
-      </div>
+        <span className="text-xl font-bold uppercase tracking-wide">Store</span>
+      </Link>
 
-      {/* Desktop Navigation */}
-      <ul className="hidden lg:flex gap-10 text-md font-semibold tracking-wider">
-        {navItems.map((item, index) => (
-          <Link
-            key={index}
-            to={item.path}
-            className="cursor-pointer hover:text-green-600 transition-colors"
-          >
-            {item.name}
-          </Link>
+      {/* Desktop Nav Items */}
+      <ul className="hidden lg:flex gap-8 font-medium text-gray-700 dark:text-gray-100">
+        {navItems.map((item, idx) => (
+          <li key={idx}>
+            <Link
+              to={item.path}
+              className="hover:text-green-600 transition-colors duration-200"
+            >
+              {item.name}
+            </Link>
+          </li>
         ))}
       </ul>
 
-      {/* Right Side for Desktop */}
-      <div className="hidden lg:flex items-center ">
+      {/* Right Section for Desktop */}
+      <div className="hidden lg:flex items-center gap-4">
         {users ? (
-          <DropdownMenu>
+          <>
             <Tooltip>
               <TooltipTrigger asChild>
-                <DropdownMenuTrigger asChild>
-                  <Avatar className="size-10 cursor-pointer hover:scale-105 transition-all ease-in-out duration-150">
-                    <AvatarImage
-                      className="w-full h-full object-cover"
-                      src="https://plus.unsplash.com/premium_photo-1673758905770-a62f4309c43c?q=80&w=1974&auto=format&fit=crop"
-                      alt="User avatar"
-                    />
-                  </Avatar>
-                </DropdownMenuTrigger>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Avatar className="size-10 cursor-pointer hover:scale-105 transition-all">
+                      <AvatarImage
+                        src="https://plus.unsplash.com/premium_photo-1673758905770-a62f4309c43c?q=80&w=1974&auto=format&fit=crop"
+                        alt="User"
+                      />
+                    </Avatar>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56" align="end">
+                    <DropdownMenuLabel className="text-sm">
+                      {users.name}
+                    </DropdownMenuLabel>
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem
+                        onClick={() =>
+                          navigate(
+                            users.role === "admin"
+                              ? "/dashboard/admin"
+                              : "/dashboard/user/profile"
+                          )
+                        }
+                      >
+                        Profile
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate("/orders")}>
+                        Orders
+                      </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={logoutUser}>
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{users.name}</p>
+                <p>Account</p>
               </TooltipContent>
             </Tooltip>
 
-            <DropdownMenuContent className="w-56" align="start">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuGroup>
-                <DropdownMenuItem
-                  onClick={() =>
-                    users.role === "admin"
-                      ? navigate("/dashboard/admin")
-                      : navigate("/dashboard/user/profile")
-                  }
-                >
-                  Profile
-                  <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/")}>
-                  Orders
-                  <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                Log out
-                <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : (
-          <>
-            <Link to="/login">
-              <Button>Login</Button>
+            <Link to="/cart" className="relative group">
+              <ShoppingCart className="size-6 hover:text-green-600" />
             </Link>
-            <Link to="/signup">
-              <Button variant="outline">Signup</Button>
+            <Link to="/wishlist" className="relative group">
+              <Heart className="size-6 hover:text-green-600" />
             </Link>
           </>
-        )}
-        <Link
-          to={"/cart"}
-          className=" border border-green-600 ml-15 size-10 flex justify-center items-center "
-        >
-          <ShoppingCart className=" cursor-pointer hover:text-green-600" />
-        </Link>
-        <Link
-          to={"/wishlist"}
-          className=" border border-green-600 ml-1 size-10 flex justify-center items-center "
-        >
-          <Heart className=" cursor-pointer hover:text-green-600" />
-        </Link>
-      </div>
-
-      {/* Mobile Menu */}
-      <div className="lg:hidden flex items-center gap-2">
-        {/* Auth Buttons on Small Screens */}
-        {!users && (
-          <div className="flex gap-2">
+        ) : (
+          <>
             <Link to="/login">
               <Button size="sm">Login</Button>
             </Link>
             <Link to="/signup">
-              <Button variant="outline" size="sm">
+              <Button size="sm" variant="outline">
                 Signup
               </Button>
             </Link>
-          </div>
+          </>
         )}
+      </div>
 
+      {/* Mobile Menu */}
+      <div className="lg:hidden flex items-center gap-2">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Menu className="text-green-600 border border-green-600 size-10 p-2 cursor-pointer" />
+            <Menu className="size-8 cursor-pointer text-green-600" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56" align="end">
+          <DropdownMenuContent className="w-48" align="end">
             <DropdownMenuLabel>Menu</DropdownMenuLabel>
             <DropdownMenuGroup>
               {navItems.map((item, index) => (
                 <DropdownMenuItem key={index} asChild>
-                  <Link to={item.path} className="w-full">
-                    {item.name}
-                  </Link>
+                  <Link to={item.path}>{item.name}</Link>
                 </DropdownMenuItem>
               ))}
 
-              {users && (
+              <DropdownMenuSeparator />
+
+              {users ? (
                 <>
-                  <DropdownMenuItem>
-                    <Link to="/dashboard/profile" className="w-full">
-                      Profile
-                    </Link>
+                  <DropdownMenuItem
+                    onClick={() =>
+                      navigate(
+                        users.role === "admin"
+                          ? "/dashboard/admin"
+                          : "/dashboard/user/profile"
+                      )
+                    }
+                  >
+                    Profile
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={logoutUser}>
-                    Log out
+                  <DropdownMenuItem onClick={() => navigate("/orders")}>
+                    Orders
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={logoutUser}>Logout</DropdownMenuItem>
+                </>
+              ) : (
+                <>
+                  <DropdownMenuItem asChild>
+                    <Link to="/login">Login</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/signup">Signup</Link>
                   </DropdownMenuItem>
                 </>
               )}
@@ -205,3 +195,4 @@ function Navbar() {
 }
 
 export default Navbar;
+  
