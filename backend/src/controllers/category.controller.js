@@ -4,9 +4,9 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 export const createCategory = asyncHandler(async (req, res) => {
   try {
     const { productName } = req.body;
-    console.log(productName);
+    console.log("req.body:", req.body);
     
-    if (!productName.trim()) {
+    if (!productName) {
       return res
         .status(400)
         .json({ success: false, message: "Name is required" });

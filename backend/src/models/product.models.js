@@ -1,25 +1,29 @@
 // models/Product.js
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, 'Product name is required'],
+      required: [true, "Product name is required"],
       trim: true,
     },
     description: {
       type: String,
-      required: [true, 'Product description is required'],
+      required: [true, "Product description is required"],
     },
     price: {
       type: Number,
-      required: [true, 'Product price is required'],
+      required: [true, "Product price is required"],
     },
     category: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Category',
+      ref: "Category",
       required: true,
+    },
+    sizes: {
+      type: [String], // array of strings like ["S", "M", "L"]
+      default: [], // optional, if product has no sizes
     },
     stock: {
       type: Number,
@@ -44,7 +48,7 @@ const productSchema = new mongoose.Schema(
       {
         user: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: 'User',
+          ref: "User",
         },
         name: String,
         rating: Number,
@@ -59,4 +63,4 @@ const productSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export const Products =  mongoose.model('Products',productSchema)
+export const Products = mongoose.model("Products", productSchema);

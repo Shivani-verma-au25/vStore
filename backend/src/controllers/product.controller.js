@@ -6,7 +6,7 @@ import { Category } from "../models/category.models.js";
 
 export const createProduct = asyncHandler(async (req, res) => {
   try {
-    const { name, description, price, category, stock, images, isFeatured } =
+    const { name, description, price, category, stock,sizes ,images, isFeatured } =
       req.body;
 
     if (
@@ -39,6 +39,7 @@ export const createProduct = asyncHandler(async (req, res) => {
       price,
       category: crtgy,
       stock,
+      sizes
     });
 
     const newProduct = await Products.findById(product._id);
@@ -67,7 +68,7 @@ export const createProduct = asyncHandler(async (req, res) => {
 
 export const getProducts = asyncHandler(async (req, res) => {
   try {
-    const allproducts = await Products.find();
+    const allproducts = await Products.find().populate("category","productName");
     if (!allproducts) {
       return res.status(400).json({
         success: false,

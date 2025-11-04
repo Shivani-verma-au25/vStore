@@ -54,7 +54,7 @@ export const regiterUser = asyncHandler( async (req , res) => {
         // send response with created user
         return res.status(200).json({
             success :true,
-            message :`${role} registered successfully`,
+            message :`${name} registered successfully`,
             createdUser
         })
 
