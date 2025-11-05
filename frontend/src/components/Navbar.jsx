@@ -1,198 +1,120 @@
-import { Heart, Menu, ShoppingCart, Loader } from "lucide-react";
-import React from "react";
+import {
+  Contact2,
+  HandPlatter,
+  Home,
+  Menu,
+  SearchIcon,
+  ShoppingCart,
+  X,
+} from "lucide-react";
+import React, { useState } from "react";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
   DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Link, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { navItems } from "../contant/index";
-import { Avatar, AvatarImage } from "./ui/avatar";
-import { toast } from "sonner";
-import { AxiosInstance } from "@/utils/axios";
-import { useDispatch, useSelector } from "react-redux";
-import { logout, setLoading } from "@/store/authSlice";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
-function Navbar() {
-  const { users, loading } = useSelector((state) => state.auth);
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-
-  const logoutUser = async () => {
-    try {
-      dispatch(setLoading(true));
-      const res = await AxiosInstance.post("/v1/user/logout");
-      dispatch(logout());
-      toast.success(res?.data?.message || "Logged out successfully");
-      navigate("/login");
-    } catch (error) {
-      console.error("Error in logout", error);
-      toast.error(error?.response?.data?.message || "Logout failed");
-    } finally {
-      dispatch(setLoading(false));
-    }
-  };
-
-  if (loading)
-    return (
-      <div className="w-screen h-screen flex justify-center items-center">
-        <Loader className="w-12 h-12 animate-spin text-green-600" />
-        <span className="ml-3 text-xl font-semibold">Loading...</span>
-      </div>
-    );
+function NavBar() {
+  const [showInput, setShowInput] = useState(false);
+  const navigate = useNavigate()
 
   return (
-    <nav className="w-full max-w-7xl mx-auto py-4 px-4 lg:px-8 flex justify-between items-center border-b dark:border-gray-700 bg-white dark:bg-gray-900">
-      {/* Logo */}
-      <Link to="/" className="flex items-center gap-2">
-        <img
-          src="https://t4.ftcdn.net/jpg/04/06/91/91/360_F_406919161_J0pGxe1sewqnk5dnvyRS77MKmEd6SVac.jpg"
-          alt="Logo"
-          className="w-10 h-10 rounded-full object-cover"
-        />
-        <span className="text-xl font-bold uppercase tracking-wide">Store</span>
-      </Link>
+    <nav className="w-full  relative p-6 shadow-md rounnded-xl ">
+      <div className="flex justify-between items-center">
+        {/* Logo */}
+        <div className="font-bold text-2xl sm:text-3xl cursor-pointer ">Logo</div>
 
-      {/* Desktop Nav Items */}
-      <ul className="hidden lg:flex gap-8 font-medium text-gray-700 dark:text-gray-100">
-        {navItems.map((item, idx) => (
-          <li key={idx}>
-            <Link
-              to={item.path}
-              className="hover:text-green-600 transition-colors duration-200"
+        {/* Links (visible on larger screens) */}
+        <div className="hidden sm:flex sm:gap-6 font-semibold">
+          <Link to={'/'} className="hover:text-gray-500 transition-colors">Home</Link>
+          <Link to={'/food'} className="hover:text-gray-500 transition-colors">Food</Link>
+          <Link to={'/contact'} className="hover:text-gray-500 transition-colors">Contact</Link>
+        </div>
+
+        {/* Buttons & Search */}
+        <div className="flex items-center gap-3 relative">
+          {/* Shopping Cart */}
+          <ShoppingCart size={20} className="cursor-pointer hover:text-white transition-colors" />
+
+          {/* Search Icon + Input */}
+          <div className="flex items-center gap-2 relative">
+            <button
+              onClick={() => setShowInput(!showInput)}
+              className="flex items-center justify-center"
             >
-              {item.name}
-            </Link>
-          </li>
-        ))}
-      </ul>
+              <SearchIcon  size={20} className="size-5 text-gray-600 cursor-pointer hover:scale-110 transition-transform" />
+            </button>
 
-      {/* Right Section for Desktop */}
-      <div className="hidden lg:flex items-center gap-4">
-        {users ? (
-          <>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Avatar className="size-10 cursor-pointer hover:scale-105 transition-all">
-                      <AvatarImage
-                        src="https://plus.unsplash.com/premium_photo-1673758905770-a62f4309c43c?q=80&w=1974&auto=format&fit=crop"
-                        alt="User"
-                      />
-                    </Avatar>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56" align="end">
-                    <DropdownMenuLabel className="text-sm">
-                      {users.name}
-                    </DropdownMenuLabel>
-                    <DropdownMenuGroup>
-                      <DropdownMenuItem
-                        onClick={() =>
-                          navigate(
-                            users.role === "admin"
-                              ? "/dashboard/admin"
-                              : "/dashboard/user/profile"
-                          )
-                        }
-                      >
-                        Profile
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate("/orders")}>
-                        Orders
-                      </DropdownMenuItem>
-                    </DropdownMenuGroup>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={logoutUser}>
-                      Logout
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Account</p>
-              </TooltipContent>
-            </Tooltip>
+            {/* Search Input (toggle visible) */}
+            {showInput && (
+              <div className="absolute top-10 right-0 sm:top-10 sm:right-0 z-50 flex items-center bg-gray-50 rounded-md shadow-md px-2">
+                <p className="text-xs font-semibold p-1 sm:text-md">Lucknow</p>
+                <Input
+                  type="text"
+                  placeholder="Search..."
+                  className="w-48 sm:w-64 px-1 text-gray-700 outline-none border-none focus-visible:ring-0"
+                  autoFocus
+                  onBlur={() => setShowInput(false)}
+                />
+                <X
+                  className="size-5 text-gray-500 ml-2 cursor-pointer hover:text-black transition-colors"
+                  onClick={() => setShowInput(false)}
+                />
+              </div>
+            )}
+          </div>
 
-            <Link to="/cart" className="relative group">
-              <ShoppingCart className="size-6 hover:text-green-600" />
-            </Link>
-            <Link to="/wishlist" className="relative group">
-              <Heart className="size-6 hover:text-green-600" />
-            </Link>
-          </>
-        ) : (
-          <>
-            <Link to="/login">
-              <Button size="sm">Login</Button>
-            </Link>
-            <Link to="/signup">
-              <Button size="sm" variant="outline">
-                Signup
-              </Button>
-            </Link>
-          </>
-        )}
-      </div>
+          {/* Auth Buttons (hidden on mobile) */}
+          <div className="hidden sm:flex gap-2">
+            <Button 
+            onClick={() => navigate('/signup')}
+            className="bg-black text-white hover:bg-gray-800 cursor-pointer">Sign Up</Button>
+            <Button 
+             onClick={() => navigate('/signin')}
+            className="bg-white text-black hover:bg-gray-200 cursor-pointer">Sign In</Button>
+          </div>
 
-      {/* Mobile Menu */}
-      <div className="lg:hidden flex items-center gap-2">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Menu className="size-8 cursor-pointer text-green-600" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-48" align="end">
-            <DropdownMenuLabel>Menu</DropdownMenuLabel>
-            <DropdownMenuGroup>
-              {navItems.map((item, index) => (
-                <DropdownMenuItem key={index} asChild>
-                  <Link to={item.path}>{item.name}</Link>
+          {/* Mobile Menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Menu className="block sm:hidden border p-1 border-gray-800 rounded-sm hover:bg-black hover:text-white cursor-pointer" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="start">
+              <DropdownMenuGroup>
+                <DropdownMenuItem>
+                  <Home className="mr-2" />
+                  <Link to={'/'}>Home</Link>
                 </DropdownMenuItem>
-              ))}
-
+                <DropdownMenuItem>
+                  <HandPlatter className="mr-2" />
+                  <Link to={'/food'}>Food</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Contact2 className="mr-2" />
+                  <Link to={'/contact'}>Contact</Link>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
               <DropdownMenuSeparator />
-
-              {users ? (
-                <>
-                  <DropdownMenuItem
-                    onClick={() =>
-                      navigate(
-                        users.role === "admin"
-                          ? "/dashboard/admin"
-                          : "/dashboard/user/profile"
-                      )
-                    }
-                  >
-                    Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate("/orders")}>
-                    Orders
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={logoutUser}>Logout</DropdownMenuItem>
-                </>
-              ) : (
-                <>
-                  <DropdownMenuItem asChild>
-                    <Link to="/login">Login</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/signup">Signup</Link>
-                  </DropdownMenuItem>
-                </>
-              )}
-            </DropdownMenuGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              <DropdownMenuGroup>
+                <DropdownMenuItem>
+                  <Link to={'/signup'}>Sign Up</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Link to={'/signin'}>Sign In</Link>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
     </nav>
   );
 }
 
-export default Navbar;
-  
+export default NavBar;
