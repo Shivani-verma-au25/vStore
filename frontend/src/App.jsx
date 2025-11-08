@@ -6,6 +6,7 @@ import Food from './pages/Food'
 import Contact from './pages/Contact'
 import Signup from './pages/Signup'
 import Signin from './pages/Signin'
+import Footer from './components/Footer'
 function App() {
   return (
     <div className='max-w-7xl mx-auto'>
@@ -17,6 +18,7 @@ function App() {
         <Route path='/signup' element={<Signup/> } />
         <Route path='/signin' element={<Signin/> } />
       </Routes>
+      <Footer/>
     </div>
   )
 }
