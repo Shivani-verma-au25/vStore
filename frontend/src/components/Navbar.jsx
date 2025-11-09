@@ -103,10 +103,10 @@ function NavBar() {
                     {user}
                   </p>
 
-                  <div className="flex flex-col gap-2 text-sm">
+                  <div className="flex flex-col sm:hidden gap-2 text-sm">
                     <Link
                       to="/"
-                      className="flex items-center gap-2 hover:text-pink-600 transition-colors"
+                      className="flex  items-center gap-2 hover:text-pink-600 transition-colors"
                     >
                       <Home size={16} /> Home
                     </Link>

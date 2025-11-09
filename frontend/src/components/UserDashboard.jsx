@@ -145,6 +145,8 @@ function UserDashboard() {
             />
           </div>
         </div>
+
+        {/* product list like 3 of the products */}
       </section>
     </section>
   )
