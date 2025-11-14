@@ -252,7 +252,9 @@ export const sendOTP = asyncHandler(async (req, res) => {
 export const otpVerified = asyncHandler( async ( req, res) => {
   try {
     //  get email and restopt from client
-    const {email , resetOpt} = res.body;
+    console.log(req.body);
+    const {email , resetOpt} = req.body;
+    
     const user = await User.findOne({email}).select('-password');
 
     if (!user || user.resetOpt !== resetOpt || user.optExpires < Date.now() ) {
