@@ -96,7 +96,7 @@ function UserDashboard() {
             Top Restaurants
           </h4>
           <h1 className="font-semibold text-3xl md:text-4xl">
-            Most Featured Restaurants
+            Most Featured Restaurants in Lucknow
           </h1>
         </div>
 
