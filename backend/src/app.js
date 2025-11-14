@@ -1,9 +1,9 @@
 import express from 'express'
-dotenv.config()
 import dotenv from 'dotenv'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 
+dotenv.config()
 const app = express()
 
 app.use(cors({
@@ -20,8 +20,6 @@ app.use(cookieParser())
 import UserRouter from './routes/user.router.js'
 
 app.use('/api/v1/user',UserRouter)
-
-
 
 
 

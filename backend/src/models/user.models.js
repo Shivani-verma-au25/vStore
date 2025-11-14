@@ -23,6 +23,16 @@ export const UserSchema = new Schema({
         type : String,
         enum : ['user','owner','deliveryPerson']
     },
+    resetOpt : {
+        type : String
+    },
+    isOtpVerified : {
+        type : Boolean,
+        default : false
+    },
+    optExpires : {
+        type : Date
+    }
 }, {timestamps : true} )
 
 

@@ -3,7 +3,6 @@ import { connectDb } from "./src/bd/databaseConnection.js";
 
 const port = process.env.PORT || 5000;
 
-console.log(port);
 
 
 connectDb().then(() => {
@@ -12,6 +11,5 @@ connectDb().then(() => {
     })
 }).catch((error) => {
     console.log("Failed to connect to the databse:",error);
-    
 })
 

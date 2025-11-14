@@ -1,5 +1,6 @@
 import { User } from "../models/user.models.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { sendOtpMail } from "../utils/mail.js";
 
 // signUP  controller
 export const userSignUp = asyncHandler(async (req, res) => {
@@ -198,4 +199,121 @@ export const userSignOut = asyncHandler( async (req, res) => {
         })
         
     }
+})
+
+
+// send OTP controller
+
+export const sendOTP = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  console.log("Extracted Email:", email);
+ 
+
+  // ✅ Step 2: validate email
+  if (!email || typeof email !== "string" || email.trim() === "") {
+    return res.status(400).json({
+      success: false,
+      message: "Email is required and must be valid!",
+    });
+  }
+
+  // ✅ Step 3: find user by email
+  const user = await User.findOne({ email }).select("-password");
+
+  if (!user) {
+    return res.status(404).json({
+      success: false,
+      message: "User not found!",
+    });
+  }
+
+  // ✅ Step 4: generate OTP
+  const otp = Math.floor(1000 + Math.random() * 9000).toString();
+  console.log("Generated OTP:", otp);
+
+  // ✅ Step 5: update user fields
+  user.resetOpt = otp;
+  user.optExpires = Date.now() + 5 * 60 * 1000; // valid for 5 min
+  user.isOtpVerified = false;
+  await user.save();
+
+  // ✅ Step 6: send email
+  await sendOtpMail(user?.email, otp , "Reset your password");
+
+  // ✅ Step 7: send success response
+  return res.status(200).json({
+    success: true,
+    message: "OTP sent to your email. It's valid for 5 minutes!",
+  });
+});
+
+// otp verified controller 
+
+export const otpVerified = asyncHandler( async ( req, res) => {
+  try {
+    //  get email and restopt from client
+    const {email , resetOpt} = res.body;
+    const user = await User.findOne({email}).select('-password');
+
+    if (!user || user.resetOpt !== resetOpt || user.optExpires < Date.now() ) {
+      return res.status(400).json({
+        success : false,
+        message : "Invalid OTP or it has expired!"
+      })
+    }
+
+    // if otp is valid 
+    user.isOtpVerified = true ;
+    // user.resetOpt = null;
+    user.optExpires = null;
+    await user.save()
+
+    // send response
+    return res.status(200).json({
+      success : true,
+      message : "OTP verified now ! You can change your password now",
+    })
+    
+  } catch (error) {
+    console.log("Error in otp verifing controller" , error);
+    return res.status(500).json({
+      success : false ,
+      message : "Failed to verified OTP!"
+    })  
+  }
+})
+
+
+
+// reset password controller
+
+export const resetPassword = asyncHandler( async ( req,res) => {
+  try {
+    // get password fron client
+    const {email,password} = req.body;
+    const user = await User.findOne({email})
+    if (!user || !user.isOtpVerified) {
+      return res.status(400).json({
+        success : false,
+        message : "User not found or OTP not verified!"
+      })
+    }
+
+  user.password = password; // it will hashed with pre hooks
+  user.isOtpVerified = false;
+  await user.save();
+
+  // send response 
+  return res.status(201).json({
+    success : true,
+    message : "Your password has been changed now ! You can sigin."
+  })
+
+  } catch (error) {
+    console.log( "Error in change password controller" ,error);
+    return res.status(500).json({
+      success : false,
+      message : "Failed to reset password!"
+    })  
+  }
 })
