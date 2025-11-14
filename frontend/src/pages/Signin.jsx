@@ -53,13 +53,13 @@ function Signin() {
                       <div className="flex items-center">
                         <Label htmlFor="password">Password</Label>
                         <Link
-                          href="#"
-                          className="ml-auto inline-block font-semibold text-xs sm:text-sm underline-offset-4 "
+                        to={'/edit-password'}
+                          className="ml-auto inline-block font-semibold text-xs sm:text-xs text-blue-700 underline-offset-4 "
                         >
                           Forgot your password?
                         </Link>
                       </div>
-                      <Input id="password" type={showPassword ? 'text' : 'password'} required />
+                      <Input placeholder='********' id="password" type={showPassword ? 'text' : 'password'} required />
                       <div 
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute top-9 right-2 cursor-pointer">{showPassword ? <Eye size={20} /> : <EyeClosed size={20} />}</div>
