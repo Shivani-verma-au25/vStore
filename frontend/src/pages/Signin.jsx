@@ -1,22 +1,57 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Link, useNavigate } from "react-router-dom";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeClosed } from "lucide-react";
+import { toast } from "sonner";
+import { AxiosInstance } from "@/utils/axios";
 
 function Signin() {
-  const [showPassword ,setShowPassword] = useState(false);
-  
+  const navigate = useNavigate()
+  const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  // onchange handler
+  const onChangeHandler = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name] : e.target.value
+    }))
+  }
+
+
+  // submit handler 
+  const signinHandler = async (e) =>{
+    e.preventDefault()    
+    try {
+      const resp = await AxiosInstance.post('/v1/user/signin',formData)
+      console.log("resp" , resp.data);
+      if(resp?.data?.success === true){
+        toast.success(resp?.data?.message)
+        navigate('/')
+        // TODO save data in redux
+      }
+      
+      setFormData({
+        email : '',
+        password : ""
+      })
+    } catch (error) {
+      console.log("error in sigin page ",error);
+      toast.error(error.response?.data?.message)
+    }finally{
+      setFormData({
+        email : '',
+        password : ""
+      })
+    }
+  }
+
   return (
     <div className="w-full ">
       <div className=" w-full h-screen relative sm:block">
@@ -27,54 +62,74 @@ function Signin() {
           <div className="p-3 h-screen flex items-center justify-start mt-10 sm:mt-20 flex-col gap-10 ">
             <div className="py-2">
               <h1 className="font-bold text-4xl text-center py-1">
-                Welcome Back User! 
+                Welcome Back User!
               </h1>
               <p className="text-lg font-normal text-center">
                 Don't have an account?
-                <Link to={'/signup'} className="text-xl font-bold">Sign up</Link>
+                <Link to={"/signup"} className="text-xl font-bold">
+                  Sign up
+                </Link>
               </p>
             </div>
 
             {/* form start */}
             <Card className="w-full max-w-sm ">
               <CardContent>
-                <form>
+                <form  onSubmit={signinHandler}>
                   <div className="flex flex-col gap-6">
                     <div className="grid gap-2">
                       <Label htmlFor="email">Email</Label>
                       <Input
+                        name="email"
                         id="email"
                         type="email"
                         placeholder="m@example.com"
                         required
+                        onChange={onChangeHandler}
+                        value={formData.email}
                       />
                     </div>
                     <div className="grid gap-2 relative">
                       <div className="flex items-center">
                         <Label htmlFor="password">Password</Label>
                         <Link
-                        to={'/edit-password'}
+                          to={"/forget-password"}
                           className="ml-auto inline-block font-semibold text-xs sm:text-xs text-blue-700 underline-offset-4 "
                         >
                           Forgot your password?
                         </Link>
                       </div>
-                      <Input placeholder='********' id="password" type={showPassword ? 'text' : 'password'} required />
-                      <div 
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute top-9 right-2 cursor-pointer">{showPassword ? <Eye size={20} /> : <EyeClosed size={20} />}</div>
+                      <Input
+                        name="password"
+                        placeholder="********"
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        required
+                        onChange={onChangeHandler}
+                        value={formData.password}
+                      />
+                      <div
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute top-9 right-2 cursor-pointer"
+                      >
+                        {showPassword ? (
+                          <Eye size={20} />
+                        ) : (
+                          <EyeClosed size={20} />
+                        )}
+                      </div>
                     </div>
                   </div>
+                  <CardFooter className="flex-col  gap-2 py-4">
+                    <Button type="submit" className="w-full">
+                      Sign in
+                    </Button>
+                    <Button variant="outline" className="w-full cursor-pointer">
+                      Login with Google
+                    </Button>
+                  </CardFooter>
                 </form>
               </CardContent>
-              <CardFooter className="flex-col gap-2">
-                <Button type="submit" className="w-full">
-                  Sign in
-                </Button>
-                <Button variant="outline" className="w-full cursor-pointer">
-                  Login with Google
-                </Button>
-              </CardFooter>
             </Card>
           </div>
         </div>

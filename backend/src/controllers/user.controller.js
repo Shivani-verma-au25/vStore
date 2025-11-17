@@ -6,6 +6,7 @@ import { sendOtpMail } from "../utils/mail.js";
 export const userSignUp = asyncHandler(async (req, res) => {
   try {
     const { name, email, password, phoneNo, role } = req.body;
+    
 
     // check the fields is field is not be empty
     if (

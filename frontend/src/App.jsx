@@ -7,7 +7,8 @@ import Contact from './pages/Contact'
 import Signup from './pages/Signup'
 import Signin from './pages/Signin'
 import Footer from './components/Footer'
-import EditPassword from './pages/EditPassword'
+import ForgetPassword from './pages/ForgetPassword'
+import { Toaster } from './components/ui/sonner'
 function App() {
   return (
     <div className='max-w-7xl mx-auto'>
@@ -18,9 +19,10 @@ function App() {
         <Route path='/contact' element={<Contact/> } />
         <Route path='/signup' element={<Signup/> } />
         <Route path='/signin' element={<Signin/> } />
-        <Route path='/edit-password' element={<EditPassword/> } />
+        <Route path='/forget-password' element={<ForgetPassword/> } />
       </Routes>
       <Footer/>
+      <Toaster />
     </div>
   )
 }

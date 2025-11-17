@@ -9,15 +9,41 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeftFromLine, Key, LockIcon, Shield } from "lucide-react";
+import {
+  ArrowLeftFromLine,
+  Eye,
+  EyeClosed,
+  Key,
+  LockIcon,
+  Shield,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { AxiosInstance } from "@/utils/axios";
 
-function EditPassword() {
-    
+function ForgetPassword() {
   const navigate = useNavigate();
-  const [steps, setSteps] = useState(2);
-  const [showPassword ,setShowPassword] = useState(false)
-
+  const [steps, setSteps] = useState(1);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showconfirmPassword ,SetShowConfirmPassword] = useState(false)
+  const [email ,setEmail] = useState('')
+  const [otp ,setOtp] = useState('')
+  const [newPassword ,setNewPassword] = useState('')
+  const [confirmPassword , setConfirmPassword] = useState('')
+  
+ 
+  // send top controller
+  const sendOTPHandler = async () => {
+    try {
+      const resp = await AxiosInstance.post('/v1/user/send-otp',{email});
+      console.log("res send otp",resp);
+      console.log(FormData);
+      
+    } catch (error) {
+      console.log("Error in send otp in forget password" , error);
+      toast.error(error?.response?.data?.message) 
+    }
+  }
 
   return (
     <section className="w-full bg-gray-100  min-h-4xl flex flex-col justify-around gap-3 items-center p-6">
@@ -60,13 +86,16 @@ function EditPassword() {
                     type="email"
                     placeholder="m@example.com"
                     required
+                    value={email}
+                    onChange = {(e) => setEmail(e.target.value)}
                   />
                 </div>
               </div>
             </form>
           </CardContent>
           <CardFooter className="flex-col gap-2">
-            <Button type="submit" className="w-full">
+            <Button onClick={sendOTPHandler}
+            type="submit" className="w-full">
               Send OTP
             </Button>
           </CardFooter>
@@ -79,7 +108,7 @@ function EditPassword() {
           <CardHeader>
             <div className="flex flex-col items-center">
               <span className="bg-gray-100 p-2 rounded-full border">
-                <Shield 
+                <Shield
                   size={30}
                   className="border rounded-full p-1 text-purple-500 font-extrabold"
                 />
@@ -123,7 +152,7 @@ function EditPassword() {
           <CardHeader>
             <div className="flex flex-col items-center">
               <span className="bg-gray-100 p-2 rounded-full border">
-                <LockIcon 
+                <LockIcon
                   size={30}
                   className="border rounded-full p-1 text-purple-500 font-extrabold"
                 />
@@ -140,17 +169,45 @@ function EditPassword() {
           </CardHeader>
           <CardContent>
             <form>
-              <div className="flex flex-col gap-6">
-                <div className="grid gap-2">
-                  <Label htmlFor="email">Email</Label>
+              <>
+                <div className="grid gap-1 relative">
+                  <Label htmlFor="email">Password</Label>
                   <Input
                     id="password"
-                    type="password"
-                    placeholder="*******"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="********"
                     required
                   />
+                  <div
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute top-7 right-2 cursor-pointer"
+                  >
+                    {showPassword ? <Eye size={20} /> : <EyeClosed size={20} />}
+                  </div>
                 </div>
-              </div>
+                <div className="grid gap-2 py-2 relative">
+                    <Label htmlFor="confirm password">Comfirm Password</Label>
+                    <Input
+                      id="Confirm password"
+                      type={showconfirmPassword ? 'text' : "password"}
+                      placeholder="Enter confirm password"
+                      required
+                      name=""
+                      // value={confirmPass}
+                      // onChange={(e) =>setConfirmPass(e.target.value)}
+                    />
+                    <div
+                      onClick={() => SetShowConfirmPassword(!showconfirmPassword)}
+                      className="absolute top-9 right-2 cursor-pointer"
+                    >
+                      {showconfirmPassword ? (
+                        <Eye size={20} />
+                      ) : (
+                        <EyeClosed size={20} />
+                      )}
+                    </div>
+                  </div>
+              </>
             </form>
           </CardContent>
           <CardFooter className="flex-col gap-2">
@@ -164,4 +221,4 @@ function EditPassword() {
   );
 }
 
-export default EditPassword;
+export default ForgetPassword;
