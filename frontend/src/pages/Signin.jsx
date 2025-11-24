@@ -4,13 +4,17 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Eye, EyeClosed } from "lucide-react";
+import { Eye, EyeClosed, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { AxiosInstance } from "@/utils/axios";
+import { useDispatch, useSelector } from "react-redux";
+import { setLoading, setUsersData } from "@/redux/authSlice";
 
 function Signin() {
   const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false);
+  const dispatch = useDispatch()
+  const {loading} = useSelector((state) => state.auth);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -27,16 +31,16 @@ function Signin() {
 
   // submit handler 
   const signinHandler = async (e) =>{
+    dispatch(setLoading(true))
     e.preventDefault()    
     try {
       const resp = await AxiosInstance.post('/v1/user/signin',formData)
-      console.log("resp" , resp.data);
       if(resp?.data?.success === true){
+        // TODO save data in redux
+        dispatch(setUsersData(resp?.data))
         toast.success(resp?.data?.message)
         navigate('/')
-        // TODO save data in redux
       }
-      
       setFormData({
         email : '',
         password : ""
@@ -44,11 +48,14 @@ function Signin() {
     } catch (error) {
       console.log("error in sigin page ",error);
       toast.error(error.response?.data?.message)
+      dispatch(setLoading(false))
     }finally{
+      dispatch(setLoading(false))
       setFormData({
         email : '',
         password : ""
       })
+
     }
   }
 
@@ -122,7 +129,7 @@ function Signin() {
                   </div>
                   <CardFooter className="flex-col  gap-2 py-4">
                     <Button type="submit" className="w-full">
-                      Sign in
+                      {loading? <span className="flex justify-center items-center gap-1 text-xs "><Loader2 size={20} className="  transition-all animate-spin duration-100 ease-linear " /> Loading...</span> : 'Sign in' }
                     </Button>
                     <Button variant="outline" className="w-full cursor-pointer">
                       Login with Google

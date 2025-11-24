@@ -4,14 +4,20 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Eye, EyeClosed } from "lucide-react";
+import { Eye, EyeClosed, Loader2 } from "lucide-react";
 import { AxiosInstance } from "@/utils/axios";
 import { toast } from "sonner";
+import { setLoading, setUsersData } from "@/redux/authSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const roles = ["user", "owner", "delivery"];
   const navigate = useNavigate()
+  const dispatch = useDispatch()
+  const {loading} = useSelector((state) => state.auth);
+  console.log("loading ...",loading);
+  
 
   const [formData, setFormData] = useState({
     name: "",
@@ -32,15 +38,14 @@ function Signup() {
   // handle signup
   const signupSubmitHandler = async (e) => {
     e.preventDefault(); // prevent reload
-
+    dispatch(setLoading(true))
     try {
       const resp = await AxiosInstance.post("/v1/user/signup", formData);
-      
       if (resp?.data?.success === true) {
-        console.log("resp", resp.data);
-        navigate('/')
-        toast.success(resp?.data?.message)
         // TODO : save data in redux
+        dispatch(setUsersData(resp?.data?.users))
+        navigate('/signin')
+        toast.success(resp?.data?.message)
       }
 
       setFormData({
@@ -52,7 +57,9 @@ function Signup() {
       })
     } catch (error) {
       toast.error(error.response?.data?.message ) 
+      setLoading(false)
     }finally{
+      dispatch(setLoading(false))
       setFormData({
         email : '',
         password : ""
@@ -163,7 +170,8 @@ function Signup() {
                   {/* SUBMIT BUTTON INSIDE FORM */}
                   <CardFooter className="flex-col gap-2 mt-4">
                     <Button type="submit" className="w-full">
-                      Sign up
+                      {loading? <span className="flex justify-center items-center gap-1 text-xs "><Loader2 size={20} className="  transition-all animate-spin duration-100 ease-linear " /> Loading...</span> : 'Sign up' }
+                      
                     </Button>
 
                     <Button variant="outline" className="w-full">

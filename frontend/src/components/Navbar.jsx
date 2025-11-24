@@ -18,14 +18,35 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useActionData, useNavigate } from "react-router-dom";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import useCurrentUser from "@/hooks/useCurrentUser";
+import { useDispatch, useSelector } from "react-redux";
+import { AxiosInstance } from "@/utils/axios";
+import { setUsersData } from "@/redux/authSlice";
+import { toast } from "sonner";
 
 function NavBar() {
+  useCurrentUser();
   const [showInput, setShowInput] = useState(false);
   const [isLogged, setISlogged] = useState(false);
   const [user, setUser] = useState("user");
+  const disptach = useDispatch()
   const navigate = useNavigate();
+  const { usersData } = useSelector((state) => state.auth);
+
+  // handle Logout button
+  const handleSignOut = async()=>{
+    try {
+      const res = await AxiosInstance.post('/v1/user/signout');
+      disptach(setUsersData(null));
+      toast.success(res?.data.message)
+
+    } catch (error) {
+      console.log("error in logout handler" ,error);
+      
+    }
+  }
 
   return (
     <nav className="w-full relative p-6 shadow-md rounded-xl bg-white">
@@ -36,25 +57,48 @@ function NavBar() {
         </div>
 
         {/* Links (visible on larger screens) */}
-        <div className="hidden sm:flex sm:gap-6 font-semibold">
-          <Link to="/" className="hover:text-gray-500 transition-colors">
-            Home
-          </Link>
-          <Link to="/food" className="hover:text-gray-500 transition-colors">
-            Food
-          </Link>
-          <Link to="/contact" className="hover:text-gray-500 transition-colors">
-            Contact
-          </Link>
-        </div>
+        {usersData?.role === 'user' ? (
+          <div className="hidden sm:flex sm:gap-6 font-semibold">
+            <Link to="/" className="hover:text-gray-500 transition-colors">
+              Home
+            </Link>
+            <Link to="/food" className="hover:text-gray-500 transition-colors">
+              Food
+            </Link>
+            <Link
+              to="/contact"
+              className="hover:text-gray-500 transition-colors"
+            >
+              Contact
+            </Link>
+          </div>
+          ) : usersData?.role === 'owner' ? '' : (
+              <div className="hidden sm:flex sm:gap-6 font-semibold">
+            <Link to="/" className="hover:text-gray-500 transition-colors">
+              Home
+            </Link>
+            <Link to="/food" className="hover:text-gray-500 transition-colors">
+              Food
+            </Link>
+            <Link
+              to="/contact"
+              className="hover:text-gray-500 transition-colors"
+            >
+              Contact
+            </Link>
+          </div>
+          )}
+
 
         {/* Buttons & Search */}
         <div className="flex items-center gap-3 relative">
-          {/* Shopping Cart */}
-          <ShoppingCart
-            size={20}
-            className="cursor-pointer hover:text-gray-700 transition-colors"
-          />
+          {/* Shopping Cart  appears only in users*/}
+          {usersData?.role === "user" && (
+            <ShoppingCart
+              size={20}
+              className="cursor-pointer hover:text-gray-700 transition-colors"
+            />
+          )}
 
           {/* Search Icon + Input */}
           <div className="flex items-center gap-2 relative">
@@ -89,18 +133,18 @@ function NavBar() {
 
           {/* Auth/Profile Section */}
           <div className=" sm:flex gap-2">
-            {isLogged ? (
+            {usersData ? (
               // ✅ When logged in → show profile popover
               <Popover>
                 <PopoverTrigger>
-                  <div className="w-10 h-10 rounded-full flex justify-center items-center bg-pink-600 text-white text-sm shadow-xl font-semibold cursor-pointer ml-1">
-                    {user.slice(0, 1).toUpperCase()}
+                  <div className="w-8 h-8 rounded-full flex justify-center items-center bg-pink-600 text-white text-sm shadow-xl font-semibold cursor-pointer ml-1">
+                    {usersData?.name?.slice(0, 1).toUpperCase()}
                   </div>
                 </PopoverTrigger>
 
                 <PopoverContent className="w-44 mt-3">
                   <p className="font-semibold text-sm py-1 capitalize border-b pb-2 mb-2">
-                    {user}
+                    {usersData?.name} {usersData?.role=== 'owner' ? "Owner" : ""}
                   </p>
 
                   <div className="flex flex-col sm:hidden gap-2 text-sm">
@@ -125,8 +169,8 @@ function NavBar() {
                   </div>
 
                   <div
-                    // onClick={handleSignOut}
-                    className="text-pink-600 font-semibold text-sm mt-3 cursor-pointer border-t pt-2 hover:underline"
+                    onClick={handleSignOut}
+                    className="text-pink-600 font-semibold text-sm mt-3 cursor-pointer border-t pt-2"
                   >
                     Log Out
                   </div>
@@ -144,7 +188,7 @@ function NavBar() {
           </div>
 
           {/* Mobile Menu (only visible when not logged in) */}
-          {!isLogged && (
+          {!usersData && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Menu className="block sm:hidden border p-1 border-gray-800 rounded-sm hover:bg-black hover:text-white cursor-pointer" />
@@ -167,7 +211,7 @@ function NavBar() {
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                   <DropdownMenuItem>
-                    <Link to="/signin">Sign In</Link>
+                    <Link  to="/signin">Sign In</Link>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
               </DropdownMenuContent>

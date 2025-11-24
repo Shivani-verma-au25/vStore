@@ -9,6 +9,7 @@ import Signin from './pages/Signin'
 import Footer from './components/Footer'
 import ForgetPassword from './pages/ForgetPassword'
 import { Toaster } from './components/ui/sonner'
+import ErrorPage from './pages/ErrorPage'
 function App() {
   return (
     <div className='max-w-7xl mx-auto'>
@@ -20,6 +21,7 @@ function App() {
         <Route path='/signup' element={<Signup/> } />
         <Route path='/signin' element={<Signin/> } />
         <Route path='/forget-password' element={<ForgetPassword/> } />
+        <Route path='*' element={<ErrorPage/> } />
       </Routes>
       <Footer/>
       <Toaster />
