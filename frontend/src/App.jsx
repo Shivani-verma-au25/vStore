@@ -10,7 +10,11 @@ import Footer from './components/Footer'
 import ForgetPassword from './pages/ForgetPassword'
 import { Toaster } from './components/ui/sonner'
 import ErrorPage from './pages/ErrorPage'
+import useCurrentUser from './hooks/useCurrentUser'
+
 function App() {
+  useCurrentUser()
+
   return (
     <div className='max-w-7xl mx-auto'>
       <NavBar/>

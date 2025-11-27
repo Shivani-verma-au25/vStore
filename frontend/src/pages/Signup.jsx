@@ -9,14 +9,16 @@ import { AxiosInstance } from "@/utils/axios";
 import { toast } from "sonner";
 import { setLoading, setUsersData } from "@/redux/authSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { auth } from "@/utils/firebase";
 
 function Signup() {
+
   const [showPassword, setShowPassword] = useState(false);
   const roles = ["user", "owner", "delivery"];
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const {loading} = useSelector((state) => state.auth);
-  console.log("loading ...",loading);
   
 
   const [formData, setFormData] = useState({
@@ -66,6 +68,35 @@ function Signup() {
       })
     }
   };
+
+  // signup with google 
+
+  const goolgeHandler = async () => {
+    if(!formData.phoneNo){
+      return toast.error("Phone No. is required!")
+    }
+    const provider = new GoogleAuthProvider()
+    
+    try {
+      const resp = await signInWithPopup(auth,provider);
+      const user = resp.user;
+      const {data} = await AxiosInstance.post('/v1/user/google-auth', {
+        ...formData,
+        name : user.displayName,
+        email : user.email,
+        phoneNo : formData.phoneNo,
+        role : formData.role ? formData.role : 'user',
+      })
+      toast.success(data.message);
+      navigate('/signin')
+      dispatch(setUsersData(data))
+      
+    } catch (error) {
+      console.log("Error in googleAuthHandler", error);
+      toast.error(error.response?.data?.message || "Google sign-in failed!");
+    }
+    
+  }
 
   return (
     <div className="w-full">
@@ -174,7 +205,9 @@ function Signup() {
                       
                     </Button>
 
-                    <Button variant="outline" className="w-full">
+                    <Button 
+                    onClick={goolgeHandler}
+                    variant="outline" className="w-full">
                       Login with Google
                     </Button>
                   </CardFooter>

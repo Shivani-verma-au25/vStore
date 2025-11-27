@@ -27,26 +27,23 @@ import { setUsersData } from "@/redux/authSlice";
 import { toast } from "sonner";
 
 function NavBar() {
-  useCurrentUser();
   const [showInput, setShowInput] = useState(false);
-  const [isLogged, setISlogged] = useState(false);
-  const [user, setUser] = useState("user");
-  const disptach = useDispatch()
+  // const [isLogged, setISlogged] = useState(false);
+  // const [user, setUser] = useState("user");
+  const disptach = useDispatch();
   const navigate = useNavigate();
   const { usersData } = useSelector((state) => state.auth);
 
   // handle Logout button
-  const handleSignOut = async()=>{
+  const handleSignOut = async () => {
     try {
-      const res = await AxiosInstance.post('/v1/user/signout');
+      const res = await AxiosInstance.post("/v1/user/signout");
       disptach(setUsersData(null));
-      toast.success(res?.data.message)
-
+      toast.success(res?.data.message);
     } catch (error) {
-      console.log("error in logout handler" ,error);
-      
+      console.log("error in logout handler", error);
     }
-  }
+  };
 
   return (
     <nav className="w-full relative p-6 shadow-md rounded-xl bg-white">
@@ -57,7 +54,7 @@ function NavBar() {
         </div>
 
         {/* Links (visible on larger screens) */}
-        {usersData?.role === 'user' ? (
+        {usersData?.role === "user" ? (
           <div className="hidden sm:flex sm:gap-6 font-semibold">
             <Link to="/" className="hover:text-gray-500 transition-colors">
               Home
@@ -72,8 +69,10 @@ function NavBar() {
               Contact
             </Link>
           </div>
-          ) : usersData?.role === 'owner' ? '' : (
-              <div className="hidden sm:flex sm:gap-6 font-semibold">
+        ) : usersData?.role === "owner" ? (
+          ""
+        ) : (
+          <div className="hidden sm:flex sm:gap-6 font-semibold">
             <Link to="/" className="hover:text-gray-500 transition-colors">
               Home
             </Link>
@@ -87,8 +86,7 @@ function NavBar() {
               Contact
             </Link>
           </div>
-          )}
-
+        )}
 
         {/* Buttons & Search */}
         <div className="flex items-center gap-3 relative">
@@ -137,14 +135,19 @@ function NavBar() {
               // ✅ When logged in → show profile popover
               <Popover>
                 <PopoverTrigger>
-                  <div className="w-8 h-8 rounded-full flex justify-center items-center bg-pink-600 text-white text-sm shadow-xl font-semibold cursor-pointer ml-1">
-                    {usersData?.name?.slice(0, 1).toUpperCase()}
-                  </div>
+                  {usersData?.name ? (
+                    <div className="w-8 h-8 rounded-full flex justify-center items-center bg-pink-600 text-white text-sm shadow-xl font-semibold cursor-pointer ml-1">
+                      {usersData?.name.charAt(0).toUpperCase()}
+                    </div>
+                  ) : (
+                    <div className="w-8 h-8 rounded-full animate-pulse bg-gray-300 ml-1"></div>
+                  )}
                 </PopoverTrigger>
 
                 <PopoverContent className="w-44 mt-3">
                   <p className="font-semibold text-sm py-1 capitalize border-b pb-2 mb-2">
-                    {usersData?.name} {usersData?.role=== 'owner' ? "Owner" : ""}
+                    {usersData?.name}{" "}
+                    {usersData?.role === "owner" ? "Owner" : ""}
                   </p>
 
                   <div className="flex flex-col sm:hidden gap-2 text-sm">
@@ -211,7 +214,7 @@ function NavBar() {
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                   <DropdownMenuItem>
-                    <Link  to="/signin">Sign In</Link>
+                    <Link to="/signin">Sign In</Link>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
               </DropdownMenuContent>

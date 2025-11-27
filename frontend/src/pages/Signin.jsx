@@ -9,6 +9,8 @@ import { toast } from "sonner";
 import { AxiosInstance } from "@/utils/axios";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoading, setUsersData } from "@/redux/authSlice";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { auth } from "@/utils/firebase";
 
 function Signin() {
   const navigate = useNavigate()
@@ -58,6 +60,27 @@ function Signin() {
 
     }
   }
+
+  // google auth 
+   const goolgeHandler = async () => {
+      const provider = new GoogleAuthProvider()
+      
+      try {
+        const resp = await signInWithPopup(auth,provider);
+        const user = resp.user;
+        const {data} = await AxiosInstance.post('/v1/user/google-auth', {
+          email : user.email,
+        })
+        toast.success(data.message);
+        dispatch(setUsersData(data))
+        navigate('/')
+        
+      } catch (error) {
+        console.log("Error in googleAuthHandler", error);
+        toast.error(error.response?.data?.message || "Google sign-in failed!");
+      }
+      
+    }
 
   return (
     <div className="w-full ">
@@ -131,7 +154,9 @@ function Signin() {
                     <Button type="submit" className="w-full">
                       {loading? <span className="flex justify-center items-center gap-1 text-xs "><Loader2 size={20} className="  transition-all animate-spin duration-100 ease-linear " /> Loading...</span> : 'Sign in' }
                     </Button>
-                    <Button variant="outline" className="w-full cursor-pointer">
+                    <Button 
+                    onClick={goolgeHandler}
+                    variant="outline" className="w-full cursor-pointer">
                       Login with Google
                     </Button>
                   </CardFooter>

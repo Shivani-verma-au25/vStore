@@ -322,4 +322,61 @@ export const resetPassword = asyncHandler( async ( req,res) => {
 })
 
 
-//
+// google auth controller (signin and signup with google)
+
+export const googleAuth = asyncHandler(async (req , res) => {
+  try {
+    const {name ,email,phoneNo, role} = req.body;
+
+    // check if user is exist
+    let user = await User.findOne({email});
+    if(!user){
+      // create user
+      user = await User.create({
+        name,
+        email,
+        phoneNo,
+        // role: role ? role : 'user', // if role provided → use it, else → 'user'
+        role: role ?? 'user', // if role provided → use it, else → 'user'
+      });
+    }
+
+    // find created user
+    const createdUser = await User.findById(user._id).select('-password');
+    if(!createdUser){
+      return res.status(400).json({
+        success : false,
+        message : "User not created!"
+      })
+    }
+
+    // if user created then generate token for this user who created by google 
+
+    const Dtoken = await user.generateToken();
+    const options ={
+      httpOnly : true,
+      secure : true,
+      sameSite : 'strict',
+      maxAge  : 7*24*60*60*1000 // for 7 days
+    }
+
+  //send respnse
+
+    return res.status(201)
+    .cookie('Dtoken',Dtoken ,options)
+    .json({
+      success:true,
+      message : `${createdUser.name} signed in successfully with google account!`,
+      createdUser
+    })
+
+
+  } catch (error) {
+    console.log("error in google auth controller" , error);
+    return res.status(500).json({
+      success: true,
+      message : "Failed to sigin with google!",
+    })
+  }
+})
+
