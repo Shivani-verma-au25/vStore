@@ -13,8 +13,6 @@ function useCurrentUser() {
           withCredentials: true, // VERY IMPORTANT for cookies
         });
 
-        console.log("res from hook", response.data);
-
         if (response.data?.success) {
           dispatch(setUsersData(response.data.user));
         } else {
